@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-ui="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#14171f">
+  <meta name="description" content="Rookery — self-hosted chess: live play, bots, game review, analysis, puzzles and variants.">
+  <title>Rookery</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/v/__BUILD__/css/app.css">
+  <link rel="stylesheet" href="/assets/v/__BUILD__/css/board.css">
+  <link rel="modulepreload" href="/assets/v/__BUILD__/js/chess/chess.js">
+  <script>
+    // apply the saved UI theme before first paint
+    try { var s = JSON.parse(localStorage.getItem('rookery.settings') || '{}'); if (s.uiTheme) document.documentElement.dataset.ui = s.uiTheme; } catch (e) {}
+  </script>
+</head>
+<body>
+  <div id="app" class="shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main" id="main" tabindex="-1">
+      <div class="boot"><div class="boot-mark">♜</div><div>Loading Rookery…</div></div>
+    </main>
+  </div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="modal-root"></div>
+  <noscript><p style="padding:2rem;font-family:sans-serif">Rookery needs JavaScript to run.</p></noscript>
+  <script type="module" src="/assets/v/__BUILD__/js/app.js" data-build="__BUILD__" data-version="__VERSION__" id="app-script"></script>
+</body>
+</html>

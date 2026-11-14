@@ -1,0 +1,10 @@
+{
+  "name": "Rookery",
+  "short_name": "Rookery",
+  "description": "Self-hosted chess: live play, bots, game review, analysis, puzzles and variants.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#14171f",
+  "theme_color": "#14171f",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

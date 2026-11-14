@@ -1,0 +1,26 @@
+{
+  "name": "rookery-chess",
+  "version": "1.0.0",
+  "description": "Rookery — a self-hosted, memory-frugal chess platform (live play, bots, game review, analysis, puzzles, variants) for macOS behind Nginx + Cloudflare Tunnel.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node --max-old-space-size=256 server/index.js",
+    "dev": "NODE_ENV=development node --watch --max-old-space-size=256 server/index.js",
+    "setup": "bash scripts/setup.sh",
+    "assets": "node scripts/gen-pieces.mjs && node scripts/gen-sounds.mjs",
+    "db:init": "node scripts/init-db.mjs",
+    "puzzles:generate": "node scripts/gen-puzzles.mjs",
+    "test": "node scripts/test-rules.mjs",
+    "selftest": "node scripts/selftest.mjs"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^13.1.1",
+    "fastify": "^5.6.0",
+    "ws": "^8.18.3"
+  }
+}
