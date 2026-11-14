@@ -166,7 +166,6 @@ async function main() {
   console.log('draw offer, resignation, abort');
   a.send({ t: 'seek:create', tc: '5+0', variant: 'standard', rated: false });
   await a.wait((m) => m.t === 'seek:created');
-  const lobbyC = new Client(); lobbyC.cookie = b.cookie;
   b.send({ t: 'lobby:sub' });
   const lobby = await b.wait((m) => m.t === 'lobby:state' && m.seeks.length > 0);
   check(lobby.seeks[0].tc === '5+0', 'open seeks are listed in the lobby');
@@ -201,10 +200,31 @@ async function main() {
   spectator.send({ t: 'game:join', id: note.gameId });
   const specState = (await spectator.wait((m) => m.t === 'game:state')).game;
   check(specState.you === null, 'spectators can watch live games');
+  a.send({ t: 'game:move', id: note.gameId, uci: 'e2e4' });
+  const specEval = await spectator.wait((m) => m.t === 'game:eval' && m.id === note.gameId, 30000, 'spectator eval');
+  check(specEval.ply === 1 && (specEval.cp != null || specEval.mate != null), `evaluation bar is streamed to spectators (${specEval.cp} cp)`);
+  check(!a.inbox.some((m) => m.t === 'game:eval' && m.id === note.gameId), 'players do not receive the evaluation while the game is live');
   a.send({ t: 'game:abort', id: note.gameId });
   const end3 = await a.wait((m) => m.t === 'game:end' && m.id === note.gameId);
   check(end3.status === 'aborted', 'games can be aborted before move 2');
   spectator.close();
+
+  console.log('daily (correspondence) game');
+  a.send({ t: 'seek:create', tc: '3d', variant: 'standard', rated: true });
+  await a.wait((m) => m.t === 'seek:created');
+  b.send({ t: 'seek:create', tc: '3d', variant: 'standard', rated: true });
+  const dId = (await b.wait((m) => m.t === 'seek:matched')).gameId;
+  await a.wait((m) => m.t === 'seek:matched');
+  a.send({ t: 'game:join', id: dId }); b.send({ t: 'game:join', id: dId });
+  const dA = (await a.wait((m) => m.t === 'game:state' && m.game.id === dId)).game;
+  await b.wait((m) => m.t === 'game:state' && m.game.id === dId);
+  const dW = dA.you === 'w' ? a : b, dB = dA.you === 'w' ? b : a;
+  dW.send({ t: 'game:move', id: dId, uci: 'c2c4' });
+  const dMove = await dB.wait((m) => m.t === 'game:move' && m.id === dId && m.ply === 1);
+  const threeDays = 3 * 86_400_000;
+  check(dA.tc.days === 3 && Math.abs(dMove.clocks.deadline - Date.now() - threeDays) < 5000, 'daily game gives each move a 3-day deadline');
+  const mine = (await dB.api('GET', '/api/games/ongoing')).data.games.find((x) => x.id === dId);
+  check(mine && mine.myTurn === true && mine.ply === 1, 'daily games are persisted move by move and listed as "your move"');
 
   console.log('bots');
   const bots = await a.api('GET', '/api/bots');

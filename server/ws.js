@@ -64,7 +64,7 @@ function startAnalysis(conn, msg) {
   let last = 0, pending = null, timer = null;
   const pack = (lines, source, done) => ({
     t: 'analysis:info', reqId, source, done,
-    lines: lines.map((l) => ({ multipv: l.multipv, depth: l.depth, cp: l.cp ?? null, mate: l.mate ?? null, nodes: l.nodes, nps: l.nps, pv: (l.pv || [l.uci]).slice(0, 14) })),
+    lines: lines.map((l) => ({ multipv: l.multipv, depth: l.depth, cp: l.cp ?? null, mate: l.mate ?? null, nodes: l.nodes, nps: l.nps, tbhits: l.tbhits || 0, pv: (l.pv || [l.uci]).slice(0, 14) })),
   });
   const flush = () => { timer = null; if (pending && conn.analysis && conn.analysis.reqId === reqId) { conn.send(pending); pending = null; last = Date.now(); } };
   const job = analysePosition({

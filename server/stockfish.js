@@ -45,6 +45,7 @@ class Engine {
         } else if (line === 'uciok') {
           this.setOpt('Hash', this.pool.hashMb);
           this.setOpt('Threads', this.pool.threads);
+          if (this.pool.syzygyPath) this.setOpt('SyzygyPath', this.pool.syzygyPath);
           this.send('isready');
         } else if (line === 'readyok') {
           clearTimeout(timer);
@@ -124,6 +125,7 @@ class Engine {
           case 'nodes': info.nodes = +t[++i]; break;
           case 'nps': info.nps = +t[++i]; break;
           case 'time': info.time = +t[++i]; break;
+          case 'tbhits': info.tbhits = +t[++i]; break;
           case 'score': {
             const kind = t[++i], val = +t[++i];
             if (kind === 'mate') info.mate = val; else info.cp = val;
@@ -177,6 +179,7 @@ export class StockfishPool {
     this.hashMb = Math.min(32, opts.hashMb || 32);
     this.threads = 1;
     this.idleKillMs = opts.idleKillMs || 90_000;
+    this.syzygyPath = opts.syzygyPath || null;
     this.engines = [];
     this.starting = 0;
     this.queue = [];
@@ -261,6 +264,7 @@ export class StockfishPool {
     return {
       available: this.available, path: this.path, engine: this.engineName, processes: this.engines.length + this.starting,
       busy: this.engines.filter((e) => e.job).length, queued: this.queue.length, maxProcesses: this.max, hashMb: this.hashMb, threads: this.threads,
+      syzygy: this.syzygyPath,
       pids: this.engines.map((e) => e.proc?.pid).filter(Boolean),
     };
   }

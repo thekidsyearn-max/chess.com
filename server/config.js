@@ -43,6 +43,8 @@ export const config = {
     hashMb: Math.min(32, Math.max(1, int(process.env.STOCKFISH_HASH_MB, 32))), // hard cap: 32 MB
     threads: 1, // always single-threaded per worker
     idleKillMs: int(process.env.STOCKFISH_IDLE_MS, 90_000),
+    // optional Syzygy endgame tablebases (directory of .rtbw/.rtbz files); probed by Stockfish itself
+    syzygyPath: process.env.SYZYGY_PATH && existsSync(process.env.SYZYGY_PATH) ? process.env.SYZYGY_PATH : null,
   },
   review: { nodes: int(process.env.REVIEW_NODES, 300_000), maxDepth: int(process.env.REVIEW_DEPTH, 18), multipv: 3 },
   analysis: { maxDepth: int(process.env.ANALYSIS_DEPTH, 26), maxMs: int(process.env.ANALYSIS_MS, 12_000) },

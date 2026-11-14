@@ -14,8 +14,8 @@ export const whiteShare = (ev) => {
 export class EvalBar {
   constructor() {
     this.fill = h('.w', { style: { height: '50%' } });
-    this.top = h('.num.top');
-    this.bot = h('.num.bot');
+    this.top = h('.num.hi');
+    this.bot = h('.num.lo');
     this.el = h('.evalbar', { title: 'Engine evaluation' }, this.fill, this.top, this.bot);
     this.orientation = 'w';
   }
@@ -151,7 +151,7 @@ export function fitBoard(layout, { side = 380, extra = 0 } = {}) {
 }
 
 export const avatar = (name, { bot = null, size = '' } = {}) => (bot
-  ? h('.avatar.bot', { class: size, style: { background: bot.tint || 'var(--panel-3)' } }, bot.emoji || '🤖')
+  ? h('.avatar.is-bot', { class: size, style: { background: bot.tint || 'var(--panel-3)' } }, bot.emoji || '🤖')
   : h('.avatar', { class: size }, String(name || '?').slice(0, 1).toUpperCase()));
 
 export const seg = (options, value, onChange) => {

@@ -74,7 +74,7 @@ export function analysePosition(opts) {
   return p;
 }
 
-const normalise = (l) => ({ uci: l.pv[0], pv: l.pv, cp: l.cp, mate: l.mate, depth: l.depth, nodes: l.nodes, nps: l.nps, multipv: l.multipv });
+const normalise = (l) => ({ uci: l.pv[0], pv: l.pv, cp: l.cp, mate: l.mate, depth: l.depth, nodes: l.nodes, nps: l.nps, multipv: l.multipv, tbhits: l.tbhits || 0 });
 
 async function liteFallback(opts) {
   const nodes = opts.liteNodes || Math.min(250_000, Math.max(2_000, Math.round((opts.nodes || 300_000) / 3)));

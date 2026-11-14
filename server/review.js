@@ -174,7 +174,7 @@ export async function analyseGame(input, onProgress = () => {}, meta = {}) {
     const refutationUci = after.lines && after.lines[0] ? after.lines[0].pv.slice(0, 10) : [];
     const ev = whiteEval(i + 1);
     const comment = explain({
-      cls, pos, move, next, san: rec.san, bestSan: bestMove ? pos.san(bestMove) : null, bestUci: best ? best.uci : null,
+      cls, pos, move, next, san: rec.san, uci: rec.uci, bestSan: bestMove ? pos.san(bestMove) : null, bestUci: best ? best.uci : null,
       bestLine: bestLineUci, refutation: refutationUci, wpBefore, wpAfter, mateBefore,
       mateAfter: mateAfter === 0.5 ? null : mateAfter, opening: meta.opening || null, ply: i, prevCls, loss,
     });
@@ -201,7 +201,7 @@ export async function analyseGame(input, onProgress = () => {}, meta = {}) {
   const startEval = whiteEval(0);
   return {
     version: 1, variant: game.variant, startFen: game.startFen, engine: useSf ? stockfish.engineName || 'Stockfish' : 'Rookery built-in engine',
-    depth: Math.max(0, ...evals.map((e) => e.depth || 0)), nodes: useSf ? config.review.nodes : null,
+    depth: Math.max(0, ...evals.filter((e) => e.mate == null).map((e) => e.depth || 0)), nodes: useSf ? config.review.nodes : null,
     white, black, graph, startEval: { cp: startEval.cp != null ? Math.round(startEval.cp) : null, mate: startEval.mate },
     moves,
     summary: summarise({ white, black, result: meta.result, reason: reasonText(meta.reason), opening: meta.opening, userColor: meta.userColor }),

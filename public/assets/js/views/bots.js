@@ -20,7 +20,7 @@ export default async function botsView(root) {
 
   function paintRoster() {
     mount(roster, tiers.map((tier) => h('div', { style: { marginBottom: '14px' } }, h('h3.muted', tier),
-      h('.bot-grid', bots.filter((b) => b.tier === tier).map((b) => h('.bot', { class: b.id === s.botId ? 'on' : '', onclick: () => { s.botId = b.id; save(); paintRoster(); paintDetail(); } },
+      h('.bot-grid', bots.filter((b) => b.tier === tier).map((b) => h('.botcard', { class: b.id === s.botId ? 'on' : '', onclick: () => { s.botId = b.id; save(); paintRoster(); paintDetail(); } },
         h('.face', { style: { background: b.color } }, b.emoji), h('b', b.name), h('small', String(b.elo))))))));
   }
 
@@ -28,7 +28,7 @@ export default async function botsView(root) {
     const b = bots.find((x) => x.id === s.botId);
     const sfOnly = s.variant === 'standard' || s.variant === 'chess960';
     mount(detail,
-      h('.row', h('.bot .face', { style: { background: b.color, width: '64px', height: '64px', borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: '34px', flex: 'none' } }, b.emoji),
+      h('.row', h('div', { style: { background: b.color, width: '64px', height: '64px', borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: '34px', flex: 'none' } }, b.emoji),
         h('div', h('h2', { style: { margin: 0 } }, b.name, ' ', h('span.tag.accent', String(b.elo))), h('.muted.small', `${b.tier} · ${STYLE_NAMES[b.style] || b.style}`))),
       h('p', { style: { marginTop: '10px' } }, b.tagline),
       h('label.field', 'I play as', seg([['white', 'White'], ['random', 'Random'], ['black', 'Black']], s.color, (v) => { s.color = v; save(); })),
@@ -47,8 +47,8 @@ export default async function botsView(root) {
       } }, `Play ${b.name}`));
   }
 
-  mount(root, h('.page', h('.grid', { style: { gridTemplateColumns: 'minmax(0, 1fr) minmax(300px, 380px)', alignItems: 'start' } },
+  mount(root, h('.page', h('.split',
     h('.card', h('h1', '🤖 Play a bot'), h('p.muted', 'Every bot is unlocked. Each has its own strength, style and things to say.'), roster),
-    h('.card', { style: { position: 'sticky', top: '16px' } }, detail))));
+    h('.card.sticky', detail))));
   paintRoster(); paintDetail();
 }

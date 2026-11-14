@@ -64,7 +64,7 @@ export default async function playView(root, _params, query) {
     Object.entries(VARIANT_NAMES).map(([v, n]) => h('option', { value: v, selected: v === state.variant }, n)));
   blurb.textContent = VARIANT_BLURB[state.variant];
 
-  mount(root, h('.page', h('.grid', { style: { gridTemplateColumns: 'minmax(300px, 400px) minmax(0, 1fr)', alignItems: 'start' } },
+  mount(root, h('.page', h('.split.left',
     h('.card.col', h('h2', '♟ New game'), h('label.field', 'Variant', variantSel), blurb, tcBox,
       toggle('Rated', state.rated, (v) => { state.rated = v; save(); }, 'Rated games change your Glicko-2 rating'), action),
     h('.col',

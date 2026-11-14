@@ -1,0 +1,37 @@
+# Rookery — Cloudflare Tunnel (cloudflared) configuration.
+#
+# One-time setup:
+#   brew install cloudflared
+#   cloudflared tunnel login                              # authorise your Cloudflare zone
+#   cloudflared tunnel create rookery                     # prints the tunnel UUID and writes
+#                                                         #   ~/.cloudflared/<UUID>.json
+#   cloudflared tunnel route dns rookery chess.example.com
+#   CHESS_DOMAIN=chess.example.com TUNNEL_ID=<UUID> bash scripts/setup.sh --tunnel
+#
+# setup.sh replaces __TUNNEL_ID__, __CHESS_DOMAIN__ and __HOME__ and installs the result as
+# ~/.cloudflared/config.yml. To run it by hand:  cloudflared tunnel --config <file> run
+
+tunnel: __TUNNEL_ID__
+credentials-file: __HOME__/.cloudflared/__TUNNEL_ID__.json
+
+# QUIC (HTTP/3) to the Cloudflare edge, falling back to HTTP/2 when UDP 7844 is blocked.
+protocol: auto
+no-autoupdate: true
+loglevel: info
+metrics: 127.0.0.1:20241
+
+originRequest:
+  connectTimeout: 10s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 32
+  keepAliveTimeout: 90s
+  # Nginx listens for plain HTTP/1.1 on port 80; WebSocket upgrades are passed through as-is.
+  http2Origin: false
+  httpHostHeader: __CHESS_DOMAIN__
+
+ingress:
+  # the chess site (HTML, API and the /ws WebSocket all go to Nginx)
+  - hostname: __CHESS_DOMAIN__
+    service: http://127.0.0.1:80
+  # anything else that reaches this tunnel
+  - service: http_status:404

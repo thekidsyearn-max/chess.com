@@ -2,7 +2,7 @@
 import { h, mount, fmtDuration, timeAgo } from '../lib/dom.js';
 import { api } from '../lib/api.js';
 import { miniBoard } from '../lib/board.js';
-import { session, VARIANT_NAMES, SPEED_ICON } from '../lib/state.js';
+import { session, navigate, VARIANT_NAMES, SPEED_ICON } from '../lib/state.js';
 
 const TILES = [
   ['/play', '♟', 'Play Online', 'Bullet, blitz, rapid, classical and daily games'],
@@ -33,7 +33,7 @@ export default async function home(root) {
 
   api.get('/api/games/ongoing').then(({ games }) => {
     if (!games.length) return mount(ongoing, h('.empty', 'No games in progress.'));
-    mount(ongoing, h('table.tbl', games.slice(0, 8).map((g) => h('tr.click', { onclick: () => { history.pushState({}, '', `/game/${g.id}`); dispatchEvent(new PopStateEvent('popstate')); } },
+    mount(ongoing, h('table.tbl', games.slice(0, 8).map((g) => h('tr.click', { onclick: () => navigate(`/game/${g.id}`) },
       h('td', { style: { width: '54px' } }, miniBoard(g.fen, g.color)),
       h('td', h('b', g.opponent), h('.muted.small', `${VARIANT_NAMES[g.variant]} · ${g.tc === 'none' ? 'untimed' : g.tc}`)),
       h('td.right', g.myTurn ? h('span.tag.accent', 'Your move') : h('span.tag', 'Waiting'), g.deadline ? h('.muted.small', fmtDuration(g.deadline - Date.now()) + ' left') : null)))));
@@ -43,7 +43,7 @@ export default async function home(root) {
     if (!games.length) return mount(recent, h('.empty', 'Play a game and it will show up here.'));
     mount(recent, h('table.tbl', games.slice(0, 6).map((g) => {
       const opp = g.color === 'w' ? g.black : g.white;
-      return h('tr.click', { onclick: () => { history.pushState({}, '', `/game/${g.id}`); dispatchEvent(new PopStateEvent('popstate')); } },
+      return h('tr.click', { onclick: () => navigate(`/game/${g.id}`) },
         h('td', { style: { width: '30px' } }, SPEED_ICON[g.speed] || '♟'),
         h('td', h('b', opp.name), opp.rating ? h('span.muted', ` (${opp.rating})`) : null, h('.muted.small', g.opening || VARIANT_NAMES[g.variant])),
         h('td', h('span.tag', { class: g.outcome === 'win' ? 'good' : g.outcome === 'loss' ? 'bad' : '' }, g.outcome || g.result)),

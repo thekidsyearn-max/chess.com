@@ -96,7 +96,7 @@ export default async function analysisView(root, [routeName], query) {
     else { const o = pos.outcome(); if (o) evalBar.update(o.winner === null ? { cp: 0 } : { mate: o.winner === WHITE ? 'W' : 'B' }); }
     const head = h('.panel-head',
       h('label.switch', { style: { padding: 0, gap: '8px' } }, h('input', { type: 'checkbox', checked: engineOn, onchange: (e) => { engineOn = e.target.checked; localStorage.setItem('rookery.engine', engineOn ? 'on' : 'off'); lines = []; paintEngine(); requestEngine(); } }), h('span', engineMeta.source === 'lite' ? 'Built-in engine' : 'Stockfish')),
-      h('span.muted.small.mono', engineOn && top ? `depth ${top.depth || '–'}${top.nps ? ` · ${(top.nps / 1000).toFixed(0)}k n/s` : ''}${engineMeta.done ? ' ✓' : ''}` : ''),
+      h('span.muted.small.mono', engineOn && top ? `depth ${top.depth || '–'}${top.nps ? ` · ${(top.nps / 1000).toFixed(0)}k n/s` : ''}${top.tbhits ? ` · TB ${top.tbhits}` : ''}${engineMeta.done ? ' ✓' : ''}` : ''),
       h('select.input', { style: { width: 'auto', padding: '3px 6px' }, title: 'Number of lines (MultiPV)', onchange: (e) => { multipv = +e.target.value; localStorage.setItem('rookery.multipv', String(multipv)); lines = []; requestEngine(); } },
         [1, 2, 3, 4, 5].map((k) => h('option', { value: k, selected: k === multipv }, `${k} line${k > 1 ? 's' : ''}`))));
     const body = h('.panel-body');

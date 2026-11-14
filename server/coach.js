@@ -124,15 +124,24 @@ export function explain(ctx) {
   if (mateBefore != null && mateBefore > 0 && !(mateAfter != null && mateAfter > 0)) {
     return `${san} misses a forced mate in ${mateBefore}${bestSan ? ` starting with ${bestSan}` : ''}. ${wpAfter >= 90 ? 'You are still winning, but the quick finish is gone.' : `Now you only have ${edge(wpAfter)}.`}`;
   }
+  // material the played move ends up with, so "you missed ..." only counts the difference
+  const playedSwing = ctx.uci ? lineSwing(pos, [ctx.uci, ...(ctx.refutation || [])], us, 5) : 0;
   if (cls === 'miss') {
-    const gain = ctx.bestLine ? lineSwing(pos, ctx.bestLine, us) : 0;
+    const gain = (ctx.bestLine ? lineSwing(pos, ctx.bestLine, us) : 0) - playedSwing;
     const prize = gain >= 800 ? 'won the queen' : gain >= 450 ? 'won a rook' : gain >= 250 ? 'won a piece' : gain >= 90 ? 'won a pawn' : `given you ${edge(wpBefore)}`;
     return `${san} misses a chance to punish your opponent's last move.${bestSan ? ` ${bestSan} would have ${prize}.` : ''}`;
   }
   if (refMove) {
     const after = next.after(refMove);
-    // 1. the reply simply takes something
-    if (refMove.captured && refMove.captured !== PAWN || (refMove.captured === PAWN && cls !== 'inaccuracy')) {
+    const swing = lineSwing(next, ref, them);
+    // 1. the reply is a fork (possibly a capturing one)
+    const forked = forkTargets(after, refMove.to, us);
+    if (forked.length >= 2 && swing >= 250) {
+      const a = NAME[typeOf(after.board[forked[0]])], b = NAME[typeOf(after.board[forked[1]])];
+      return `${san} is ${label}: it walks into a fork — ${refSan} attacks your ${a} and ${b} at the same time.${better}`;
+    }
+    // 2. the reply simply takes something
+    if ((refMove.captured && refMove.captured !== PAWN) || (refMove.captured === PAWN && cls !== 'inaccuracy')) {
       const net = PIECE_VALUE[refMove.captured] - after.see(refMove.to, us);
       if (net >= 90) {
         const what = NAME[refMove.captured], where = sqName(refMove.to);
@@ -140,20 +149,13 @@ export function explain(ctx) {
         return `${san} is ${label}: it leaves your ${what} on ${where} undefended, and ${refSan} wins it.${better}`;
       }
     }
-    // 2. the reply is a fork
-    const forked = forkTargets(after, refMove.to, us);
-    if (forked.length >= 2 && lineSwing(next, ref, them) >= 150) {
-      const a = NAME[typeOf(after.board[forked[0]])], b = NAME[typeOf(after.board[forked[1]])];
-      return `${san} is ${label}: it walks into a fork — ${refSan} attacks your ${a} and ${b} at the same time.${better}`;
-    }
     // 3. material goes in the next few moves
-    const swing = lineSwing(next, ref, them);
     if (swing >= 250) return `${san} is ${label}: after ${refSan} you lose ${swing >= 800 ? 'your queen' : swing >= 450 ? 'a rook' : 'a piece'} by force.${better}`;
     if (swing >= 90 && cls !== 'inaccuracy') return `${san} is ${label}: ${refSan} wins a pawn.${better}`;
   }
   // 4. you could have won material instead
   if (ctx.bestLine && ctx.bestLine.length) {
-    const gain = lineSwing(pos, ctx.bestLine, us);
+    const gain = lineSwing(pos, ctx.bestLine, us) - playedSwing;
     if (gain >= 250) return `${san} is ${label}: you missed ${bestSan}, which wins ${gain >= 800 ? 'the queen' : gain >= 450 ? 'a rook' : 'a piece'}.`;
     if (gain >= 90 && cls !== 'inaccuracy') return `${san} is ${label}: ${bestSan} would have won a pawn.`;
   }

@@ -56,6 +56,7 @@ export default async function settingsView(root) {
     mount(status,
       h('div', `Rookery ${session.version} · build ${session.build}`),
       h('div', `Engine: ${r.stockfish.available ? `${r.stockfish.engine || 'Stockfish'} — ${r.stockfish.processes}/${r.stockfish.maxProcesses} workers, ${r.stockfish.hashMb} MB hash, ${r.stockfish.threads} thread each` : 'built-in engine (Stockfish not installed)'}`),
+      h('div', `Endgame tablebases: ${r.stockfish.syzygy ? 'Syzygy at ' + r.stockfish.syzygy : 'not installed (set SYZYGY_PATH to enable)'}`),
       h('div', `Memory: ${r.memory.totalMb} MB in use (server ${r.memory.nodeRssMb} MB + engines ${r.memory.stockfishRssMb} MB) of a ${r.memory.budgetMb} MB budget`),
       h('div', `Data: ${r.data.ecoCodes} ECO codes (${r.data.openings} lines), ${r.data.puzzles} puzzles, ${r.data.games} games, ${r.data.users} players`),
       h('div', `Live: ${r.sockets.users} online, ${r.games.playing} games in progress`));

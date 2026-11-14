@@ -37,6 +37,7 @@ export default async function gameView(root, [id]) {
     evalBar.el,
     h('.board-col', topBar, boardHost, bottomBar, notice),
     h('.side-col', h('.panel.fill', header, infoEl, h('.panel-body.grow', movesEl), controls), chatPanel));
+  layout.style.setProperty('--eval-offset', '52px');
   mount(root, layout);
   const unfit = fitBoard(layout, { extra: 40 });
 
